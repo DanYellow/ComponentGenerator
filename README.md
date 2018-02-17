@@ -17,3 +17,9 @@ running.
 - npm i / yarn
 - npm (run) start / yarn (run) start
 ```
+
+## How to use it?
+- clone the project in local
+- (in the project folder) run `npm link`
+- in yout project run `npm link file-generator` to add the package to your project
+- execute the `generator` command
