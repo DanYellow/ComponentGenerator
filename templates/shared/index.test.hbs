@@ -1,5 +1,9 @@
 import {{name}} from './index';
 
+let clock = null;
+beforeEach(() => {
+    clock = jest.useFakeTimers();
+})
 
 describe('<{{name}} /> rendering', () => {
     it('renders without crashing', () => {

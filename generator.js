@@ -3,8 +3,10 @@ const inquirer = require('inquirer');
 const toPascalCase = require('to-pascal-case');
 const Handlebars = require('handlebars');
 const util = require('util');
+const path = require('path');
 
 const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
 
 const questionListFiller = ({name, choices, message, preselected}) => ({
     type: 'list',
@@ -25,7 +27,7 @@ const questionConfirmFiller = ({name, message, preselected = false}) => ({
     default: preselected
 })
 
-const firstQuestion = () => {
+const fileTypeQuestion = () => {
     const question = questionListFiller({
         name: 'type',
         message: 'What kind of new file you want to create?',
@@ -68,53 +70,93 @@ const thirdQuestion = (answer) => {
             question = questionConfirmFiller({
                 message: 'Is a staless component?',
                 name: 'is_stateless',
-                preselected: 'y'
             })
         break;
         case 'page':
         case 'container':
             question = questionConfirmFiller({
-                message: 'Is a staless component?',
-                name: 'is_stateless',
-                preselected: 'y'
+                message: 'Does he need redux?',
+                name: 'needs_redux',
             })
         break;
     }
+    question.preselected = 'Y'
     return inquirer.prompt([question])
+}
+
+const getTplNameForType = (type, isStateless) => {
+    switch(true) {
+        case (type === 'component' && isStateless):
+            return 'component-stateless';
+        break;
+        case (type === 'component' && !isStateless):
+            return 'component';
+        break;
+        case (type === 'page' || type === 'container'):
+            return 'container';
+        break;
+        default:
+            return 'component-stateless';
+        break;
+    }
 }
 
 let allAnswers = {};
 const generator = async () => {
-    const firstAnswer = await firstQuestion();
-    allAnswers = {...allAnswers, ...firstAnswer};
+    const fileTypeAnwser = await fileTypeQuestion();
+    allAnswers = {...allAnswers, ...fileTypeAnwser};
     const secondAnwser = await secondQuestion(allAnswers);
     allAnswers = {...allAnswers, ...secondAnwser};
     const thirdAnwser = await thirdQuestion(allAnswers);
     allAnswers = {...allAnswers, ...thirdAnwser};
 
 
-    const foo = await readFile('./templates/component-stateless.hbs')
-    console.log('componentFile', foo.data)
+    const fileFolder = `./${allAnswers.name}`;
+    if (!fs.existsSync(fileFolder)){
+        fs.mkdirSync(fileFolder);
+    } else {
+        throw new Error(`The folder ${allAnswers.name} already exists`)
+    }
+    
+    const templateType = getTplNameForType(allAnswers.type, allAnswers.is_stateless)
+    const tpls = [
+        {
+            path: `./templates/${templateType}/index.hbs`,
+            distExt: 'jsx'
+        }, {
+            path: `./templates/shared/index.test.hbs`,
+            distExt: 'js'
+        }, {
+            path: `./templates/shared/style.hbs`,
+            distExt: 'pcss' // dynamise ?
+        }
+    ]
+    const promises = []
+    const pascalCaseName = toPascalCase(allAnswers.name);
+    tpls.forEach(async (tpl) => {
+        const data = await readFile(tpl.path, 'utf8');
+        const template = Handlebars.compile(data)
+        const result = template({
+            ...allAnswers,
+            name: pascalCaseName,
+        });
 
-    // fs.readFile('./templates/component-stateless.hbs', 'utf8', function (err, data) {
-    //     if (err) {
-    //         return console.log(err);
-    //     }
+        promises.push(
+            writeFile(
+                `${fileFolder}/${path.basename(tpl.path, '.hbs')}.${tpl.distExt}`, 
+                result, 
+                'utf8'
+            )
+        );
+    })
 
-    //     const fileFolder = `./${allAnswers.name}`;
-    //     if (!fs.existsSync(fileFolder)){
-    //         fs.mkdirSync(fileFolder);
-    //     }
- 
-    //     const template = Handlebars.compile(data)
-    //     const result = template({
-    //         ...allAnswers,
-    //         name: toPascalCase(allAnswers.name),
-    //     });
-
-    //     fs.writeFile(`${fileFolder}/index.js`, result, 'utf8', function (err) {
-    //         if (err) return console.log(err);
-    //     });
-    // });
+    Promise.all(promises).then((values) => {
+        console.log(`
+            <${pascalCaseName} /> component ✔ 
+            <${pascalCaseName} /> component's unit test file ✔ 
+            <${pascalCaseName} /> component's style file ✔ 
+        `)
+        console.log('Ready to go!')
+    });
 }
 generator();
