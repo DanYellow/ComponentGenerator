@@ -1,0 +1,39 @@
+import React, { Component } from 'react';
+
+{{#if needs_style}}
+import './style.pcss';
+{{/if}}
+
+
+{{#if needs_redux}}
+export class {{name}} extends Component {
+{{else}}
+export default class {{name}} extends Component {
+{{/if}}
+  state = {
+    
+  }
+
+  render() {
+    return (
+      <div className="{{name}}">
+        <p>
+            I'm the stateful <code>{{name}}</code> component.
+        </p>
+      </div>
+    );
+  }
+}
+
+{{#if needs_redux}}
+const mapStateToProps = (state, ownProps) => {
+  return {
+
+  }
+}
+
+const mapDispatchToProps = () => {
+  return
+}
+export default connect(mapStateToProps, mapDispatchToProps)({{name}})
+{{/if}}

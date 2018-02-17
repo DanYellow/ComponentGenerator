@@ -1,0 +1,19 @@
+export const EXAMPLE = "{{toUpperCase name}}/EXAMPLE"
+
+const exampleAction = (payload) => {
+    return {
+        type: EXAMPLE,
+        payload
+    }
+}
+
+export default reducer = (state = {}, action) => {
+    switch (action.type) {
+        case EXAMPLE:
+          return Object.assign({}, state, {
+            example: action.payload.example
+          })
+        default:
+          return state
+    }
+}

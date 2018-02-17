@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "generator.js",
+  "private": false,
   "scripts": {
     "start": "node generator.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "handlebars": "^4.0.11",
-    "inquirer": "^5.1.0"
+    "inquirer": "^5.1.0",
+    "inquirer-directory": "^2.1.0"
   },
   "dependencies": {
     "to-pascal-case": "^1.0.0"

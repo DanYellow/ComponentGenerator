@@ -22,10 +22,8 @@ const getTplNameForType = (type, isStateless) => {
         case (type === 'component' && isStateless):
             return 'component-stateless';
         break;
-        case (type === 'component' && !isStateless):
-            return 'component';
-        break;
         case (type === 'page' || type === 'container'):
+        case (type === 'component' && !isStateless):
             return 'container';
         break;
         default:
@@ -47,6 +45,9 @@ const generator = async () => {
         const reduxComplexityAnswer = await questions.reduxComplexityQuestion(allAnswers);
         allAnswers = {...allAnswers, ...reduxComplexityAnswer};
     }
+
+    const generationPlaceAnswer = await questions.generationPlaceQuestion(allAnswers);
+    allAnswers = {...allAnswers, ...generationPlaceAnswer};
 
     const fileFolder = `./${allAnswers.name}`;
     if (!fs.existsSync(fileFolder)){
@@ -73,13 +74,25 @@ const generator = async () => {
     ];
 
     if (allAnswers.needs_redux) {
-        tpls.push({
-            path: `./templates/container/reducer.hbs`,
-            distExt: 'js',
-            dist: `${fileFolder}/modules`,
-            distName: 'index'
-        })
-
+        if (allAnswers.needs_a_big_reducer) {
+            const bigReducerTplFiles = [
+                'actions', 'constants', 
+                'reducer', 'index'
+            ].map(filename => ({
+                path: `./templates/container/modules/${filename}.hbs`,
+                distExt: 'js',
+                dist: `${fileFolder}/modules`,
+                distName: filename
+            }))
+            tpls.push(...bigReducerTplFiles)
+        } else {
+            tpls.push({
+                path: './templates/container/reducer.hbs',
+                distExt: 'js',
+                dist: `${fileFolder}/modules`,
+                distName: 'index'
+            })
+        }
         fs.mkdirSync(`${fileFolder}/modules`);
     }
 
@@ -105,11 +118,11 @@ const generator = async () => {
 
     Promise.all(promises).then((values) => {
         console.log(`
-            <${pascalCaseName} /> component ✔ 
+            <${pascalCaseName} /> component ✔
             <${pascalCaseName} /> component's unit test file ✔ 
-            <${pascalCaseName} /> component's style file ✔ 
+            <${pascalCaseName} /> component's style file ✔
         `)
-        console.log('Ready to go!')
+        console.log('Ready to develop!')
     });
 }
 generator();

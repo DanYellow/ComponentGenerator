@@ -1,0 +1,12 @@
+import actions from './index';
+
+export default reducer = (state = {}, action) => {
+    switch (action.type) {
+        case actions.EXAMPLE:
+          return Object.assign({}, state, {
+            example: action.payload.example
+          })
+        default:
+          return state
+    }
+}

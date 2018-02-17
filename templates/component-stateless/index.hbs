@@ -1,10 +1,14 @@
 import React from 'react';
 
+{{#if needs_style}}
+import './style.pcss';
+{{/if}}
+
 const {{name}} = (props) => {
     return (
         <div>
             <p>
-                Hello I'm "<{{name}} />" component!
+                Hello I'm {{name}} component!
             </p>
         </div>
     )
