@@ -49,7 +49,7 @@ const generator = async () => {
     const generationPlaceAnswer = await questions.generationPlaceQuestion(allAnswers);
     allAnswers = {...allAnswers, ...generationPlaceAnswer};
 
-    const fileFolder = `./${allAnswers.name}`;
+    const fileFolder = `./${allAnswers.where}/${allAnswers.name}`;
     if (!fs.existsSync(fileFolder)){
         fs.mkdirSync(fileFolder);
     } else {
@@ -95,11 +95,13 @@ const generator = async () => {
         }
         fs.mkdirSync(`${fileFolder}/modules`);
     }
-
     const promises = []
     const pascalCaseName = toPascalCase(allAnswers.name);
     tpls.forEach(async (tpl) => {
-        const data = await readFile(tpl.path, 'utf8');
+        const data = await readFile(
+            path.resolve(__dirname, tpl.path), 
+            'utf8'
+        );
         const template = Handlebars.compile(data)
         const result = template({
             ...allAnswers,
@@ -117,12 +119,19 @@ const generator = async () => {
     })
 
     Promise.all(promises).then((values) => {
-        console.log(`
+        const logs = [`
             <${pascalCaseName} /> component ✔
             <${pascalCaseName} /> component's unit test file ✔ 
             <${pascalCaseName} /> component's style file ✔
-        `)
+        `]
+        if (allAnswers.needs_redux) {
+            logs.push(
+                `<${pascalCaseName} /> component's style file ✔`
+            )
+        }
+        console.log(logs.join(''))
         console.log('Ready to develop!')
     });
 }
-generator();
+
+exports.default = generator;

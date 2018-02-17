@@ -99,7 +99,7 @@ const reduxComplexityQuestion = (answer) => {
 const generationPlaceQuestion = (answer) => {
     const question = {
         type: 'directory',
-        name: 'from',
+        name: 'where',
         message: `Where you want to generate <${toPascalCase(answer.name)} />?`,
         basePath: process.cwd()
       };

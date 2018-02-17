@@ -5,7 +5,10 @@
   "main": "generator.js",
   "private": false,
   "scripts": {
-    "start": "node generator.js"
+    "start": "node bin/generator.js"
+  },
+  "bin": {
+    "generator": "bin/generator.js"
   },
   "keywords": [],
   "author": "",
