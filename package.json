@@ -1,0 +1,21 @@
+{
+  "name": "file-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "generator.js",
+  "scripts": {
+    "start": "node generator.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "handlebars": "^4.0.11",
+    "inquirer": "^5.1.0",
+    "nodemon": "^1.15.0"
+  },
+  "dependencies": {
+    "to-pascal-case": "^1.0.0",
+    "voca": "^1.4.0"
+  }
+}
