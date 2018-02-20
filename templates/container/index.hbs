@@ -10,8 +10,11 @@ export class {{name}} extends Component {
 {{else}}
 export default class {{name}} extends Component {
 {{/if}}
-  state = {
-    
+  constructor(props) {
+      super(props):
+      this.state = {
+
+      }
   }
 
   render() {
@@ -32,8 +35,8 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-const mapDispatchToProps = () => {
-  return
+const mapDispatchToProps = {
+
 }
 export default connect(mapStateToProps, mapDispatchToProps)({{name}})
 {{/if}}
