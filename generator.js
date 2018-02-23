@@ -4,6 +4,12 @@ const Handlebars = require('handlebars');
 const util = require('util');
 const path = require('path');
 
+const questions = require('./questions');
+
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const exec = util.promisify(require('child_process').exec);
+
 Handlebars.registerHelper('toLowerCase', (str) => 
     str.toLowerCase()
 );
@@ -12,10 +18,6 @@ Handlebars.registerHelper('toUpperCase', (str) =>
     str.toUpperCase()
 );
 
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-
-const questions = require('./questions')
 
 const getTplNameForType = (type, isStateless) => {
     switch(true) {
@@ -50,6 +52,7 @@ const generator = async () => {
     allAnswers = {...allAnswers, ...generationPlaceAnswer};
 
     const fileFolder = `./${allAnswers.where}/${allAnswers.name}`;
+
     if (!fs.existsSync(fileFolder)){
         fs.mkdirSync(fileFolder);
     } else {
@@ -95,30 +98,53 @@ const generator = async () => {
         }
         fs.mkdirSync(`${fileFolder}/modules`);
     }
-    const promises = []
+   
     const pascalCaseName = toPascalCase(allAnswers.name);
-    tpls.forEach(async (tpl) => {
-        const data = await readFile(
-            path.resolve(__dirname, tpl.path), 
+
+    const writeFilePointer = (path, content) => {
+        return writeFile(
+            path, 
+            content, 
             'utf8'
-        );
-        const template = Handlebars.compile(data)
-        const result = template({
-            ...allAnswers,
-            name: pascalCaseName,
-        });
-        const distName = (tpl.distName) ? tpl.distName : path.basename(tpl.path, '.hbs')
+        ).then(() => {
+            return path;
+        })
+    }
 
-        promises.push(
-            writeFile(
-                `./${tpl.dist}/${distName}.${tpl.distExt}`, 
-                result, 
+    const generateFiles = async () => {
+        const promises = []
+        await Promise.all(tpls.map(async (tpl) => {
+            const data = await readFile(
+                path.resolve(__dirname, tpl.path), 
                 'utf8'
-            )
-        );
-    })
+            );
+            const template = Handlebars.compile(data);
+    
+            const result = template({
+                ...allAnswers,
+                name: pascalCaseName,
+            });
 
-    Promise.all(promises).then((values) => {
+            const distName = (tpl.distName) ? tpl.distName : path.basename(tpl.path, '.hbs')
+            promises.push(
+                writeFilePointer(
+                    `${tpl.dist}/${distName}.${tpl.distExt}`,
+                    result
+                )
+            )
+        }))
+        return promises;
+    }
+    const writeFilePromises = await generateFiles()
+
+    const lintingFiles = async files => (
+        await Promise.all(files.map(async (file) => {
+            const binRes = await exec('npm bin');
+            const { stdout, stderr } = await exec(`${binRes.stdout.trim()}/eslint ${path} --fix`);
+        }))
+    )
+
+    Promise.all(writeFilePromises).then((files) => {
         const logs = [`
             <${pascalCaseName} /> component ✔
             <${pascalCaseName} /> component's unit test file ✔ 
@@ -131,7 +157,13 @@ const generator = async () => {
         }
         console.log(logs.join(''))
         console.log('Ready to develop!')
-    });
+        
+        return lintingFiles(files);
+    }).then(() => {
+        console.log('Files linted!')
+    }).catch(() => {
+        console.log('An error occured')
+    })
 }
 
 exports.default = generator;

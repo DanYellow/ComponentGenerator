@@ -1,6 +1,6 @@
 {
-  "name": "file-generator",
-  "version": "1.0.0",
+  "name": "dyw-rcomponent-generator",
+  "version": "0.0.3",
   "description": "",
   "main": "generator.js",
   "private": false,
@@ -13,12 +13,10 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
+    "to-pascal-case": "^1.0.0",
     "handlebars": "^4.0.11",
     "inquirer": "^5.1.0",
     "inquirer-directory": "^2.1.0"
-  },
-  "dependencies": {
-    "to-pascal-case": "^1.0.0"
   }
 }

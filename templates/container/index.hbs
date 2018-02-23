@@ -1,38 +1,35 @@
 import React, { Component } from 'react';
-
 {{#if needs_style}}
 import './style.pcss';
 {{/if}}
-
-
 {{#if needs_redux}}
 export class {{name}} extends Component {
 {{else}}
 export default class {{name}} extends Component {
 {{/if}}
-  constructor(props) {
-      super(props):
-      this.state = {
+	constructor(props) {
+			super(props);
+			this.state = {
 
-      }
-  }
+			}
+	}
 
-  render() {
-    return (
-      <div className="{{name}}">
-        <p>
-            I'm the stateful <code>{{name}}</code> component.
-        </p>
-      </div>
-    );
-  }
+	render() {
+		return (
+			<div className="{{name}}">
+				<p>
+					I am the stateful <code>{{name}}</code> component.
+				</p>
+			</div>
+		);
+	}
 }
 
 {{#if needs_redux}}
 const mapStateToProps = (state, ownProps) => {
-  return {
+	return {
 
-  }
+	}
 }
 
 const mapDispatchToProps = {
