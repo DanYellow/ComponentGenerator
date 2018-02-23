@@ -107,6 +107,16 @@ const generationPlaceQuestion = (answer) => {
     return inquirer.prompt([question])
 }
 
+const linterQuestion = (answer) => {
+    let question = questionConfirmFiller({
+        message: 'Do you want to (es)lint your fresh new files?',
+        name: 'needs_lint',
+    });
+    question.default = false;
+
+    return inquirer.prompt([question])
+}
+
 
 module.exports = {
     reduxComplexityQuestion: reduxComplexityQuestion,
@@ -114,4 +124,5 @@ module.exports = {
     fileTypeQuestion: fileTypeQuestion,
     filenameQuestion: filenameQuestion,
     generationPlaceQuestion: generationPlaceQuestion,
+    linterQuestion: linterQuestion,
 }

@@ -48,6 +48,9 @@ const generator = async () => {
         allAnswers = {...allAnswers, ...reduxComplexityAnswer};
     }
 
+    const linterQuestionAnswer = await questions.linterQuestion(allAnswers);
+    allAnswers = {...allAnswers, ...linterQuestionAnswer};
+
     const generationPlaceAnswer = await questions.generationPlaceQuestion(allAnswers);
     allAnswers = {...allAnswers, ...generationPlaceAnswer};
 
@@ -106,9 +109,7 @@ const generator = async () => {
             path, 
             content, 
             'utf8'
-        ).then(() => {
-            return path;
-        })
+        ).then(() => (path))
     }
 
     const generateFiles = async () => {
@@ -144,7 +145,7 @@ const generator = async () => {
         }))
     )
 
-    Promise.all(writeFilePromises).then((files) => {
+    Promise.all(writeFilePromises).then(files => {
         const logs = [`
             <${pascalCaseName} /> component ✔
             <${pascalCaseName} /> component's unit test file ✔ 
@@ -157,8 +158,13 @@ const generator = async () => {
         }
         console.log(logs.join(''))
         console.log('Ready to develop!')
-        
-        return lintingFiles(files);
+
+        if(allAnswers.needs_lint) {
+            return lintingFiles(files.filter(file => (
+                !file.includes('test.js') && 
+                (file.includes('.js') || file.includes('.js'))
+            )));
+        }
     }).then(() => {
         console.log('Files linted!')
     }).catch(() => {
