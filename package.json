@@ -1,6 +1,6 @@
 {
   "name": "dyw-rcomponent-generator",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "main": "generator.js",
   "private": false,
